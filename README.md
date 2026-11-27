@@ -25,6 +25,18 @@ gh utils mkissue --file path/to/issue.md
 gh utils mkissue -f path/to/issue.md
 ```
 
+#### Creating a Draft
+
+Create a minimal issue draft in `template.issue.md` in the current directory:
+
+```bash
+gh utils mkissue template
+gh utils mkissue template --out issue.md
+gh utils mkissue template --out -
+```
+
+Use `--out -` to print the draft to standard output. Add `--elaborate` to include the full template reference. Output files must not already exist. Edit the draft to provide a title and issue body before creating the issue.
+
 #### Reading from a Git Branch
 
 You can read the issue file from a specific git branch without checking it out to your filesystem:
@@ -61,7 +73,7 @@ If `--branch` is not specified, the repository's default branch is used.
 utils mkissue --file <file> [--gist <gist-id>]
 ```
 
-- `--file` is always required
+- `--file` is required when creating an issue
 - `--branch` is optional
 - `--gist` and `--repo` are mutually exclusive
 - `--branch` is not valid with `--gist`
@@ -80,7 +92,7 @@ The `--gist` flag accepts a 32-character hexadecimal gist ID.
 
 #### Issue File Format
 
-The issue file must follow the format specified in [`exercises/template.issue.md`](exercises/template.issue.md). This template defines the contract for issue files:
+The issue file must follow the format specified in [`templates/template.issue.md`](templates/template.issue.md). This template defines the contract for issue files:
 
 - **Frontmatter** (YAML): Contains metadata like title, assignees, labels, milestone, and projects
 - **Body** (Markdown): The issue description/content
@@ -110,7 +122,7 @@ This is the issue body written in Markdown.
 - And all other Markdown features
 ```
 
-See [`specs/template.issue.md`](specs/template.issue.md) for the complete specification and all supported fields.
+See the [`mkissue` guide](docs/content/commands/mkissue.md) and [`templates/template.issue.md`](templates/template.issue.md) for the complete specification and all supported fields.
 
 ## Contributing
 

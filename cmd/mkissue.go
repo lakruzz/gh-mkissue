@@ -24,9 +24,10 @@ The markdown file should contain YAML frontmatter with metadata and a markdown b
 Usage variants:
   utils mkissue --file <file> [--branch <branch>] [--repo <owner/repo>]
   utils mkissue --file <file> [--gist <gist-id>]
+	utils mkissue template [--elaborate] [--out <file>]
 
 Rules:
-  --file is always required
+	--file is required when creating an issue
   --branch is optional (defaults to the repo's default branch when used with --repo)
   --gist and --repo are mutually exclusive
   --branch is not valid with --gist`,
@@ -47,6 +48,7 @@ Rules:
 func init() {
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 	rootCmd.AddCommand(mkissueCmd)
+	mkissueCmd.AddCommand(newTemplateCmd())
 
 	// Define flags for mkissue command
 	mkissueCmd.Flags().StringVarP(&issueFile, "file", "f", "", "Path to the markdown file containing issue content (required)")
