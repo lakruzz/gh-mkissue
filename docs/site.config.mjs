@@ -29,7 +29,7 @@ export default {
       items: [{ autogenerate: { directory: "overview" } }],
     },
     {
-      label: "Commands",
+      label: "Subcommands",
       items: [{ autogenerate: { directory: "commands" } }],
     },
   ],

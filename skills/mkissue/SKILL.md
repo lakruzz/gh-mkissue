@@ -8,10 +8,11 @@ description: Draft and review a GitHub issue specification with gh mkissue. Use 
 ## Prepare
 
 1. Check that the GitHub CLI is available and that the `mkissue` extension is installed with `gh extension list`. If the extension is missing, install it with `gh ext install lakruzz/gh-mkissue`. Report installation or authentication errors instead of assuming success.
-2. Read the mkissue guide. When working in the `lakruzz/gh-mkissue` checkout, read `docs/content/commands/mkissue.md` there. Otherwise fetch it with:
+2. Read the create and template guides. When working in the `lakruzz/gh-mkissue` checkout, read `docs/content/commands/create.md` and `docs/content/commands/template.md` there. Otherwise fetch them with:
 
    ```sh
-   gh api -H 'Accept: application/vnd.github.raw' repos/lakruzz/gh-mkissue/contents/docs/content/commands/mkissue.md
+   gh api -H 'Accept: application/vnd.github.raw' repos/lakruzz/gh-mkissue/contents/docs/content/commands/create.md
+   gh api -H 'Accept: application/vnd.github.raw' repos/lakruzz/gh-mkissue/contents/docs/content/commands/template.md
    ```
 
    The remote guide is from the repository's default branch and may differ from the installed extension version. If it is unavailable, tell the user and consult `gh mkissue --help` and `gh mkissue template --help` before proceeding.

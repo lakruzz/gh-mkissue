@@ -34,7 +34,7 @@ gh mkissue template --out issue.md
 gh mkissue template --out -
 ```
 
-Use `--out -` to print the draft to standard output. Add `--elaborate` to include the full template reference. Output files must not already exist. Edit the draft to provide a title and issue body before creating the issue.
+Use `--out -` to print the draft to standard output. Add `--elaborate` to include the full template reference. Output files must not already exist. Edit the draft to provide a title and issue body before creating the issue. See the [template guide](docs/content/commands/template.md) for details.
 
 #### Pulling an Existing Issue
 
@@ -44,7 +44,7 @@ gh mkissue pull 4,5,89
 gh mkissue pull open
 ```
 
-This saves issues and their supported metadata under the repository's `issues/` directory. Use `--dir` to choose another directory and `--force` to replace an existing draft. See the [`mkissue` guide](docs/content/commands/mkissue.md) for details.
+This saves issues and their supported metadata under the repository's `issues/` directory. Use `--dir` to choose another directory and `--force` to replace an existing draft. See the [pull guide](docs/content/commands/pull.md) for details.
 
 #### Pushing an Edited Issue
 
@@ -53,7 +53,7 @@ gh mkissue push 7
 gh mkissue push 4,5,89 --dir path/to/drafts
 ```
 
-Push synchronizes the issue from its local draft. Body changes on issues with comments require `--force`. Use `--clean` to remove unchanged drafts after successful updates and `--create-labels` to create missing labels. See the [`mkissue` guide](docs/content/commands/mkissue.md) for full-state and safety details.
+Push synchronizes the issue from its local draft. Body changes on issues with comments require `--force`. Use `--clean` to remove unchanged drafts after successful updates and `--create-labels` to create missing labels. See the [push guide](docs/content/commands/push.md) for full-state and safety details.
 
 #### Reading from a Git Branch
 
@@ -142,7 +142,7 @@ This is the issue body written in Markdown.
 - And all other Markdown features
 ```
 
-See the [`mkissue` guide](docs/content/commands/mkissue.md) and [`templates/template.issue.md`](templates/template.issue.md) for the complete specification and all supported fields.
+See the [create guide](docs/content/commands/create.md) and [`templates/template.issue.md`](templates/template.issue.md) for the complete specification and all supported fields.
 
 ## Contributing
 
