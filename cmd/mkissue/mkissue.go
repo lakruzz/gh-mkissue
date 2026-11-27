@@ -8,23 +8,26 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 type IssueMetadata struct {
-	Title     string
-	Assignees []string
-	Labels    []Label
-	Milestone string
-	Projects  []string
+	Title     string   `yaml:"title"`
+	Assignees []string `yaml:"assign,omitempty"`
+	Labels    []Label  `yaml:"labels,omitempty"`
+	Milestone string   `yaml:"milestone,omitempty"`
+	Projects  []string `yaml:"projects,omitempty"`
 }
 
 type Label struct {
-	Name  string
-	Color string
-	Desc  string
+	Name  string `yaml:"name"`
+	Color string `yaml:"color,omitempty"`
+	Desc  string `yaml:"desc,omitempty"`
 }
 
 var repoNamePattern = regexp.MustCompile(`^[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+$`)
+var frontmatterDelimiter = regexp.MustCompile(`(?m)^---[ \t]*\r?$`)
 
 func Run(args []string) {
 	if len(args) < 1 {
@@ -204,16 +207,22 @@ func readFileFromRepo(filePath, repo, branch string) ([]byte, error) {
 }
 
 func parseIssueFile(content string) (*IssueMetadata, string, error) {
-	// Split by frontmatter delimiters
-	parts := strings.Split(content, "---")
-	if len(parts) < 3 {
+	delimiters := frontmatterDelimiter.FindAllStringIndex(content, 2)
+	if len(delimiters) < 2 || delimiters[0][0] != 0 {
 		return nil, "", fmt.Errorf("invalid format: frontmatter not found")
 	}
 
-	frontmatter := strings.TrimSpace(parts[1])
-	body := strings.TrimSpace(strings.Join(parts[2:], "---"))
+	frontmatter := strings.TrimSpace(content[delimiters[0][1]:delimiters[1][0]])
+	body := strings.TrimSpace(content[delimiters[1][1]:])
 
 	metadata := &IssueMetadata{}
+	if err := yaml.Unmarshal([]byte(frontmatter), metadata); err == nil {
+		for index, assignee := range metadata.Assignees {
+			metadata.Assignees[index] = strings.Trim(assignee, "@")
+		}
+		return metadata, body, nil
+	}
+	metadata = &IssueMetadata{}
 
 	// Parse frontmatter
 	lines := strings.Split(frontmatter, "\n")
@@ -243,10 +252,10 @@ func parseIssueFile(content string) (*IssueMetadata, string, error) {
 func extractValue(line, prefix string) string {
 	value := strings.TrimPrefix(line, prefix)
 	value = strings.TrimSpace(value)
-	
+
 	// Strip inline comments (but preserve # inside quotes)
 	value = stripYAMLComment(value)
-	
+
 	value = strings.Trim(value, `"'`)
 	return value
 }
@@ -256,34 +265,34 @@ func stripYAMLComment(value string) string {
 	inSingleQuote := false
 	inDoubleQuote := false
 	var escaped bool
-	
+
 	for i, ch := range value {
 		if escaped {
 			escaped = false
 			continue
 		}
-		
+
 		if ch == '\\' {
 			escaped = true
 			continue
 		}
-		
+
 		if ch == '\'' && !inDoubleQuote {
 			inSingleQuote = !inSingleQuote
 			continue
 		}
-		
+
 		if ch == '"' && !inSingleQuote {
 			inDoubleQuote = !inDoubleQuote
 			continue
 		}
-		
+
 		// If we find # outside of quotes, strip from here onwards
 		if ch == '#' && !inSingleQuote && !inDoubleQuote {
 			return strings.TrimSpace(value[:i])
 		}
 	}
-	
+
 	return strings.TrimSpace(value)
 }
 
@@ -295,7 +304,7 @@ func parseListField(lines []string, startIdx int, prefix string) ([]string, int)
 	if strings.Contains(trimmed, "[") {
 		content := strings.TrimPrefix(trimmed, prefix)
 		content = strings.TrimSpace(content)
-		
+
 		// Strip comments before processing
 		content = stripYAMLComment(content)
 		content = strings.Trim(content, "[]")
@@ -328,10 +337,10 @@ func parseListField(lines []string, startIdx int, prefix string) ([]string, int)
 		item := strings.TrimSpace(line)
 		item = strings.TrimPrefix(item, "-")
 		item = strings.TrimSpace(item)
-		
+
 		// Strip comments from list items
 		item = stripYAMLComment(item)
-		
+
 		item = strings.Trim(item, `"'@`)
 		if item != "" {
 			items = append(items, item)

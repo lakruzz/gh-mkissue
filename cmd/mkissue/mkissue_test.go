@@ -57,6 +57,25 @@ func TestMinimalTemplate(t *testing.T) {
 	}
 }
 
+func TestParseIssueFileQuotedValues(t *testing.T) {
+	content := `---
+title: 'A "quoted" --- title #1'
+assign: ["@me"]
+labels:
+  - name: 'help, "wanted"'
+milestone: 'Release: "one"'
+projects: ['Board, "one"']
+---
+Body with --- in it.`
+	metadata, body, err := parseIssueFile(content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if metadata.Title != `A "quoted" --- title #1` || len(metadata.Assignees) != 1 || metadata.Assignees[0] != "me" || len(metadata.Labels) != 1 || metadata.Labels[0].Name != `help, "wanted"` || metadata.Milestone != `Release: "one"` || len(metadata.Projects) != 1 || metadata.Projects[0] != `Board, "one"` || body != "Body with --- in it." {
+		t.Fatalf("unexpected result: metadata = %+v, body = %q", metadata, body)
+	}
+}
+
 func TestExtractValue(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -349,6 +368,7 @@ Second part`,
 }
 
 func TestRunWithFileFromFilesystem(t *testing.T) {
+	t.Setenv("PATH", t.TempDir())
 	// Create temporary file with valid content
 	tmpFile, err := os.CreateTemp("", "test-issue-*.md")
 	if err != nil {
@@ -382,11 +402,9 @@ This is a test issue.`
 		mockCreateIssueFunc = nil
 	}()
 
-	// Need to modify RunWithFile to use mocks - for now test basic validation
 	err = RunWithFile(tmpFile.Name(), "", "", "")
-	if err != nil && strings.Contains(err.Error(), "gh command failed") {
-		// This is expected since gh CLI not available, but parsing should have worked
-		t.Logf("Got expected gh command error: %v", err)
+	if err == nil || !strings.Contains(err.Error(), "gh command failed") {
+		t.Fatalf("expected an error from the unavailable gh command, got %v", err)
 	}
 }
 
@@ -701,6 +719,7 @@ Used to measure parsing performance.`
 }
 
 func TestEnsureLabelExists(t *testing.T) {
+	t.Setenv("PATH", t.TempDir())
 	tests := []struct {
 		name    string
 		label   Label
@@ -742,17 +761,16 @@ func TestEnsureLabelExists(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Note: This test will execute actual gh commands
-			// In a CI environment, this would require gh auth setup
-			// For unit testing purposes, we're verifying no panic
 			err := ensureLabelExists(tt.label)
-			// Error is expected if gh CLI not authenticated, but no panic should occur
-			_ = err
+			if err == nil {
+				t.Error("expected an error from the unavailable gh command")
+			}
 		})
 	}
 }
 
 func TestCreateIssueMetadata(t *testing.T) {
+	t.Setenv("PATH", t.TempDir())
 	tests := []struct {
 		name     string
 		metadata *IssueMetadata
@@ -805,10 +823,10 @@ func TestCreateIssueMetadata(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// This calls gh CLI, so errors are expected without proper auth
-			// We're verifying the function handles the metadata correctly
 			err := createIssue(tt.metadata, tt.body)
-			_ = err
+			if err == nil {
+				t.Error("expected an error from the unavailable gh command")
+			}
 		})
 	}
 }

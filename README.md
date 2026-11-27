@@ -37,6 +37,16 @@ gh utils mkissue template --out -
 
 Use `--out -` to print the draft to standard output. Add `--elaborate` to include the full template reference. Output files must not already exist. Edit the draft to provide a title and issue body before creating the issue.
 
+#### Pulling an Existing Issue
+
+```bash
+gh utils mkissue pull 7
+gh utils mkissue pull 4,5,89
+gh utils mkissue pull open
+```
+
+This saves issues and their supported metadata under the repository's `issues/` directory. Use `--dir` to choose another directory and `--force` to replace an existing draft. See the [`mkissue` guide](docs/content/commands/mkissue.md) for details.
+
 #### Reading from a Git Branch
 
 You can read the issue file from a specific git branch without checking it out to your filesystem:
