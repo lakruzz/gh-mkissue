@@ -5,12 +5,12 @@
   },
   "wrapup": {
     "policies": {
-      "poll": true
+      "poll": false
     }
   },
   "deliver": {
     "policies": {
-      "poll": true
+      "poll": false
     }
   }
 }

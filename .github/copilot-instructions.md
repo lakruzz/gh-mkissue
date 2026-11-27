@@ -55,13 +55,10 @@ This repository contains `gh-utils`, a GitHub CLI extension written in Go. The e
 
 1. **Pre-commit hooks**: All commits are validated by `.githooks/pre-commit`
 2. **Checks run before commit**:
-   - Spell checking (cspell)
-   - Markdown linting
-   - Code formatting (prettier, gofmt)
-   - Go vet
-   - golangci-lint
-   - Go tests
-   - Build verification
+
+   ```bash
+   gh insitu run trunk-worthy
+   ```
 
 ## Making Changes
 
@@ -71,7 +68,10 @@ When modifying the code:
 2. **Test first**: Run tests locally before committing
 3. **Lint your code**: Ensure `make lint` passes
 4. **Update tests**: Add or update tests for new functionality
-5. **Document**: Update relevant documentation
+5. **Document**: Update relevant documentation in `docs` (if present)
+6. **Run fix-all**: Ensure `gh insitu run fix-all` passes
+
+Do not `git add` or `git commit` changes.
 
 ## GH CLI Extension
 

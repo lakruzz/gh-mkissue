@@ -16,7 +16,25 @@ on:
         type: string
 
 jobs:
+
+  prep-runner:
+    name: Prepare runner environment
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
+      statuses: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up and verify runner environment
+        uses: ./.github/actions/prep-runner
+
   build:
+    needs: prep-runner
     runs-on: ubuntu-latest
     strategy:
       matrix:
