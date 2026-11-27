@@ -4,6 +4,8 @@
 
 A GitHub CLI extension for creating and managing issues from Markdown files.
 
+**See the full documentation live at [dev.lakruzz.com/gh-mkissue](https://dev.lakruzz.com/gh-mkissue/)**
+
 ## Installation
 
 Install as a GitHub CLI extension:

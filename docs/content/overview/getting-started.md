@@ -7,6 +7,10 @@ redirectFrom: /
 # cspell:ignore lsewhere ublish yndicate
 ---
 
+:::NOTE
+**See the code at GitHub: [lakruzz/gh-mkissue](https://github.com/lakruzz/gh-mkissue/)**
+:::
+
 ## Purpose
 
 `gh-mkissue` is a GitHub CLI extension for creating, pulling, and updating issues from Markdown files.
