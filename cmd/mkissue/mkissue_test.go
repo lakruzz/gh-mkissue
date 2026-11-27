@@ -5,6 +5,8 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/lakruzz/gh-utils/templates"
 )
 
 // Mock functions for testing
@@ -42,6 +44,17 @@ func mockRunGhCommandInternal(args []string) error {
 		return mockRunGhCommandFunc(args)
 	}
 	return runGhCommand(args)
+}
+
+func TestMinimalTemplate(t *testing.T) {
+	content := strings.Replace(templates.MinimalTemplate, "title: # required", "title: Example issue", 1)
+	metadata, body, err := parseIssueFile(content)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if metadata.Title != "Example issue" || len(metadata.Labels) != 0 || len(metadata.Assignees) != 0 || metadata.Milestone != "" || len(metadata.Projects) != 0 || body != "" {
+		t.Errorf("unexpected parsed template: metadata = %+v, body = %q", metadata, body)
+	}
 }
 
 func TestExtractValue(t *testing.T) {
