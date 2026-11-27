@@ -31,7 +31,7 @@ var frontmatterDelimiter = regexp.MustCompile(`(?m)^---[ \t]*\r?$`)
 
 func Run(args []string) {
 	if len(args) < 1 {
-		fmt.Fprintln(os.Stderr, "Usage: utils mkissue create --file <file.issue.md>")
+		fmt.Fprintln(os.Stderr, "Usage: gh mkissue create --file <file.issue.md>")
 		os.Exit(1)
 	}
 

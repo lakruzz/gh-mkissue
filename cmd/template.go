@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/lakruzz/gh-utils/templates"
+	"github.com/lakruzz/gh-mkissue/templates"
 	"github.com/spf13/cobra"
 )
 

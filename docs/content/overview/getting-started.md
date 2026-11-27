@@ -1,6 +1,6 @@
 ---
-title: Utils for GitHub CLI
-description: A general purpose extension for GitHub's Command Line Interface.
+title: mkissue for GitHub CLI
+description: Create and manage GitHub issues from Markdown files.
 sidebar:
   order: 1
 redirectFrom: /
@@ -9,4 +9,4 @@ redirectFrom: /
 
 ## Purpose
 
-An example of Go extension
+`gh-mkissue` is a GitHub CLI extension for creating, pulling, and updating issues from Markdown files.

@@ -1,8 +1,8 @@
-# GitHub Copilot Instructions for gh-utils
+# GitHub Copilot Instructions for gh-mkissue
 
 ## Project Overview
 
-This repository contains `gh-utils`, a GitHub CLI extension written in Go. The extension provides utility commands for GitHub workflows and automation.
+This repository contains `gh-mkissue`, a GitHub CLI extension written in Go for creating and managing GitHub issues from Markdown files.
 
 ## Project Structure
 
@@ -78,11 +78,11 @@ Do not `git add` or `git commit` changes.
 This project is designed to be installed as a GitHub CLI extension:
 
 ```bash
-gh extension install lakruzz/gh-utils
-gh utils mkissue create --file issue.md
+gh extension install lakruzz/gh-mkissue
+gh mkissue create --file issue.md
 ```
 
-The binary must be named `utils` and placed in the repository root to be recognized by the `gh` CLI.
+The local executable is named `gh-mkissue`. Precompiled release assets use `gh-mkissue-<os>-<arch>` with `.exe` on Windows.
 
 ## RAG Instructions Location
 

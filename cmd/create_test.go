@@ -4,7 +4,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/lakruzz/gh-utils/cmd/mkissue"
+	"github.com/lakruzz/gh-mkissue/cmd/mkissue"
 )
 
 func TestCreateCommand(t *testing.T) {

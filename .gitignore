@@ -6,6 +6,8 @@
 *.dylib
 utils
 utils.exe
+/gh-mkissue
+/gh-mkissue.exe
 
 # Test binary, built with `go test -c`
 *.test

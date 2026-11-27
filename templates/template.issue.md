@@ -20,7 +20,7 @@ It supports the basic features of the `gh issue create` command.
 
 It's designed to have a dedicated format `*.issue.md` as exemplified in the Front Matter above.
 
-When a file in this format is passed to `mkissue` it will create an issue in the repo where it's executed, based on the Front Matter and markDown content.
+When a file in this format is passed to `gh mkissue create`, it creates an issue in the repo where the command is executed, based on the Front Matter and markDown content.
 
 ## `assign`
 

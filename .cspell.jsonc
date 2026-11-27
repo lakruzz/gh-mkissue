@@ -23,6 +23,7 @@
     "**/go.mod",
     "**/go.sum",
     "**/utils",
+    "**/gh-mkissue",
   ],
   "files": [
     "**/*.md",

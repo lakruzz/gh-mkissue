@@ -1,8 +1,8 @@
 <!-- cspell:ignore gofmt golangci  -->
 
-# Contributing to gh-utils
+# Contributing to gh-mkissue
 
-Thank you for your interest in contributing to gh-utils! This document provides guidelines and information for developers.
+Thank you for your interest in contributing to gh-mkissue! This document provides guidelines and information for developers.
 
 ## Developer Resources
 
@@ -33,8 +33,8 @@ These files contain essential information about:
 1. **Fork and Clone**
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/gh-utils.git
-   cd gh-utils
+   git clone https://github.com/YOUR_USERNAME/gh-mkissue.git
+   cd gh-mkissue
    ```
 
 2. **Configure Git Hooks**
@@ -96,7 +96,7 @@ These files contain essential information about:
    make build
 
    # Test the binary
-   ./utils --help
+   ./gh-mkissue --help
    ```
 
 5. **Commit Your Changes**
@@ -115,11 +115,11 @@ These files contain essential information about:
 ├── main.go                 # Application entry point
 ├── cmd/                    # Command implementations
 │   ├── root.go            # Root command definition
-│   ├── mkissue.go         # mkissue command definition
+│   ├── mkissue.go         # Root subcommand registration
 │   └── mkissue/           # mkissue implementation
 │       ├── mkissue.go     # Core logic
 │       └── mkissue_test.go # Tests (alongside implementation)
-├── exercises/              # Example files and templates
+├── templates/              # Embedded issue templates
 │   └── template.issue.md  # Issue file format contract
 ├── Makefile               # Build automation
 ├── .golangci.yml          # Linter configuration
@@ -186,7 +186,7 @@ func TestFunction(t *testing.T) {
 make build
 ```
 
-This creates the `utils` binary in the repository root.
+This creates the `gh-mkissue` binary in the repository root.
 
 ### Multi-Platform Builds
 
@@ -259,7 +259,7 @@ See `.github/workflows/` for workflow definitions.
 
 ## Issue File Format
 
-The `mkissue` command uses a specific format defined in [`exercises/template.issue.md`](exercises/template.issue.md). This is the **contract** for issue files:
+The `mkissue` command uses a specific format defined in [`templates/template.issue.md`](templates/template.issue.md). This is the **contract** for issue files:
 
 - YAML frontmatter with metadata (title, assignees, labels, etc.)
 - Markdown body for issue content
@@ -299,7 +299,7 @@ make clean
 make build
 
 # Run with verbose output
-go build -v -o ./utils .
+go build -v -o ./gh-mkissue .
 ```
 
 ## Getting Help

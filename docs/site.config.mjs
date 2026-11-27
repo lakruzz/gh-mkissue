@@ -5,10 +5,10 @@ export default {
   // Raw Astro config, merged over the theme's astro.config.mjs.
   astro: {
     site: "https://docs.mindovermachine.dev",
-    base: "/gh-utils",
+    base: "/gh-mkissue",
     server: { host: true },
   },
-  title: "GitHub CLI utils",
+  title: "GitHub CLI mkissue",
   // null (not undefined) so the theme's default "/da/" redirect is overridden.
   rootRedirect: null,
   defaultLocale: "root",

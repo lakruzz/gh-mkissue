@@ -62,7 +62,7 @@ jobs:
       - name: Build Go binary for ${{ matrix.os }}-${{ matrix.arch }}
         uses: ./.github/actions/build-go-binaries
         with:
-          binary-name: utils
+          binary-name: gh-mkissue
           os: ${{ matrix.os }}
           arch: ${{ matrix.arch }}
           ext: ${{ matrix.ext || '' }}

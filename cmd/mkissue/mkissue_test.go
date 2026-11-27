@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lakruzz/gh-utils/templates"
+	"github.com/lakruzz/gh-mkissue/templates"
 )
 
 // Mock functions for testing
@@ -644,7 +644,7 @@ Body`,
 		},
 		{
 			name:    "body with code blocks",
-			content: "---\ntitle: Code Issue\n---\nUsage:\n```bash\ngh utils mkissue create --file issue.md\n```",
+			content: "---\ntitle: Code Issue\n---\nUsage:\n```bash\ngh mkissue create --file issue.md\n```",
 			wantErr: false,
 		},
 		{

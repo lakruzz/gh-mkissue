@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lakruzz/gh-utils/templates"
+	"github.com/lakruzz/gh-mkissue/templates"
 )
 
 const outputFlag = "--out"
@@ -102,7 +102,6 @@ func TestTemplateFile(t *testing.T) {
 }
 
 func TestTemplateCommandRouting(t *testing.T) {
-	const issueCommand = "mkissue"
 	const templateCommand = "template"
 	tests := []struct {
 		name    string
@@ -110,11 +109,11 @@ func TestTemplateCommandRouting(t *testing.T) {
 		want    string
 		wantErr string
 	}{
-		{name: "template without file", args: []string{issueCommand, templateCommand, outputFlag, "-"}, want: templates.MinimalTemplate},
-		{name: "create requires file", args: []string{issueCommand, "create"}, wantErr: `required flag(s) "file" not set`},
-		{name: "old form rejected", args: []string{issueCommand, "--file", "legacy.md"}, wantErr: "unknown flag: --file"},
-		{name: "template rejects file flag", args: []string{issueCommand, templateCommand, "--file", "issue.md"}, wantErr: "unknown flag: --file"},
-		{name: "template rejects arguments", args: []string{issueCommand, templateCommand, "issue.md"}, wantErr: "unknown command"},
+		{name: "template without file", args: []string{templateCommand, outputFlag, "-"}, want: templates.MinimalTemplate},
+		{name: "create requires file", args: []string{"create"}, wantErr: `required flag(s) "file" not set`},
+		{name: "old form rejected", args: []string{"mkissue", "--file", "legacy.md"}, wantErr: `unknown command "mkissue"`},
+		{name: "template rejects file flag", args: []string{templateCommand, "--file", "issue.md"}, wantErr: "unknown flag: --file"},
+		{name: "template rejects arguments", args: []string{templateCommand, "issue.md"}, wantErr: "unknown command"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -139,5 +138,17 @@ func TestTemplateCommandRouting(t *testing.T) {
 				t.Errorf("output = %q, want %q", output.String(), test.want)
 			}
 		})
+	}
+}
+
+func TestRootCommands(t *testing.T) {
+	for _, name := range []string{"create", "template", "pull", "push"} {
+		command, _, err := rootCmd.Find([]string{name})
+		if err != nil || command == rootCmd || command.Name() != name {
+			t.Errorf("root command %q = %v, error = %v", name, command, err)
+		}
+	}
+	if command, _, err := rootCmd.Find([]string{"mkissue"}); err == nil && command != rootCmd {
+		t.Error("removed nested mkissue command is still registered")
 	}
 }

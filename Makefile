@@ -1,11 +1,11 @@
-# Makefile for gh-utils
+# Makefile for gh-mkissue
 .PHONY: help build test lint clean install coverage coverage-check watch build-all fmt vet
 
 # Default target
 .DEFAULT_GOAL := help
 
 # Binary name
-BINARY_NAME=utils
+BINARY_NAME=gh-mkissue
 
 # Build directory
 BUILD_DIR=.

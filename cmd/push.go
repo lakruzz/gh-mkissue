@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/lakruzz/gh-utils/cmd/mkissue"
+	"github.com/lakruzz/gh-mkissue/cmd/mkissue"
 	"github.com/spf13/cobra"
 )
 

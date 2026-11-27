@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lakruzz/gh-utils/cmd/mkissue"
+	"github.com/lakruzz/gh-mkissue/cmd/mkissue"
 )
 
 func TestPushCommand(t *testing.T) {
@@ -52,7 +52,7 @@ func TestPushCommand(t *testing.T) {
 }
 
 func TestPushRootRouting(t *testing.T) {
-	rootCmd.SetArgs([]string{"mkissue", "push", "open"})
+	rootCmd.SetArgs([]string{"push", "open"})
 	rootCmd.SetOut(io.Discard)
 	rootCmd.SetErr(io.Discard)
 	defer rootCmd.SetArgs(nil)

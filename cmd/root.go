@@ -8,11 +8,9 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "utils",
-	Short: "GitHub utilities extension",
-	Long: `A collection of utilities for GitHub workflows and automation.
-This is a GitHub CLI extension that provides additional commands
-to enhance your GitHub workflow.`,
+	Use:   "mkissue",
+	Short: "Create and manage GitHub issues from Markdown",
+	Long:  `Create and manage GitHub issues from Markdown files with YAML frontmatter.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

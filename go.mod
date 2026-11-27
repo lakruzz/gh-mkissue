@@ -1,4 +1,4 @@
-module github.com/lakruzz/gh-utils
+module github.com/lakruzz/gh-mkissue
 
 go 1.21
 
