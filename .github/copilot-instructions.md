@@ -79,7 +79,7 @@ This project is designed to be installed as a GitHub CLI extension:
 
 ```bash
 gh extension install lakruzz/gh-utils
-gh utils mkissue --file issue.md
+gh utils mkissue create --file issue.md
 ```
 
 The binary must be named `utils` and placed in the repository root to be recognized by the `gh` CLI.

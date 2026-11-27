@@ -65,24 +65,7 @@ labels:
   - name: "Help Wanted"
 ```
 
-When only `name` is given, it's implied that the label _must exist_ already ...or the creation will fail.
-
-The list YAML also supports `color` and `desc`. They are both _optional_ but if _any_ of them are given, it's implied, that the label should be created, if it doesn't exist.
-
-<details>
-<summary>Logic:</summary>
-
-```shell
-# If listing the label fails, then create it:
-$LABEL_NAME=<label.mame>
-$LABEL_DESC=<label.desc>
-$LABEL_COLOR=<label.color>
-
-gh label list --json name --jq '.[].name' | grep "$LABEL"
-$? && gh label create "$LABEL_NAME" -c $LABEL_COLOR -d "$LABEL_DESC"
-```
-
-</details>
+Labels must exist already unless `--create-labels` is supplied to `mkissue create` or `mkissue push`. The list also supports optional `color` and `desc` fields, which are used when creating a missing label; existing labels are not modified.
 
 ## `milestone``
 

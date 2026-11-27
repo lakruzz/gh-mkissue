@@ -20,9 +20,9 @@ gh extension install lakruzz/gh-utils --pin 0.8.0 #Installs a specifi version
 Create a GitHub issue from a markdown file with YAML frontmatter:
 
 ```bash
-gh utils mkissue --file path/to/issue.md
+gh utils mkissue create --file path/to/issue.md
 # or using short form
-gh utils mkissue -f path/to/issue.md
+gh utils mkissue create -f path/to/issue.md
 ```
 
 #### Creating a Draft
@@ -47,14 +47,23 @@ gh utils mkissue pull open
 
 This saves issues and their supported metadata under the repository's `issues/` directory. Use `--dir` to choose another directory and `--force` to replace an existing draft. See the [`mkissue` guide](docs/content/commands/mkissue.md) for details.
 
+#### Pushing an Edited Issue
+
+```bash
+gh utils mkissue push 7
+gh utils mkissue push 4,5,89 --dir path/to/drafts
+```
+
+Push synchronizes the issue from its local draft. Body changes on issues with comments require `--force`. Use `--clean` to remove unchanged drafts after successful updates and `--create-labels` to create missing labels. See the [`mkissue` guide](docs/content/commands/mkissue.md) for full-state and safety details.
+
 #### Reading from a Git Branch
 
 You can read the issue file from a specific git branch without checking it out to your filesystem:
 
 ```bash
-gh utils mkissue --file path/to/issue.md --branch secret
+gh utils mkissue create --file path/to/issue.md --branch secret
 # or using short form
-gh utils mkissue -f path/to/issue.md -b secret
+gh utils mkissue create -f path/to/issue.md -b secret
 ```
 
 This is useful for keeping issue templates in a separate orphan branch.
@@ -64,15 +73,15 @@ This is useful for keeping issue templates in a separate orphan branch.
 You can read the issue file from a specific GitHub repository:
 
 ```bash
-gh utils mkissue --file path/to/issue.md --repo owner/repo
+gh utils mkissue create --file path/to/issue.md --repo owner/repo
 # or using short form
-gh utils mkissue -f path/to/issue.md -r owner/repo
+gh utils mkissue create -f path/to/issue.md -r owner/repo
 ```
 
 Optionally combine with `--branch` to read from a specific branch in that repository:
 
 ```bash
-gh utils mkissue --file path/to/issue.md --repo owner/repo --branch my-branch
+gh utils mkissue create --file path/to/issue.md --repo owner/repo --branch my-branch
 ```
 
 If `--branch` is not specified, the repository's default branch is used.
@@ -80,22 +89,24 @@ If `--branch` is not specified, the repository's default branch is used.
 #### Flag Rules
 
 ```text
-utils mkissue --file <file> [--gist <gist-id>]
+utils mkissue create --file <file> [--gist <gist-id>]
 ```
 
 - `--file` is required when creating an issue
 - `--branch` is optional
 - `--gist` and `--repo` are mutually exclusive
 - `--branch` is not valid with `--gist`
+- `--clean` is only valid for a local file source
+- `--create-labels` allows creation of missing labels
 
 #### Reading from a GitHub Gist
 
 You can read the issue file from a GitHub Gist:
 
 ```bash
-gh utils mkissue --file filename.md --gist <gist-id>
+gh utils mkissue create --file filename.md --gist <gist-id>
 # or using short form
-gh utils mkissue -f filename.md -g <gist-id>
+gh utils mkissue create -f filename.md -g <gist-id>
 ```
 
 The `--gist` flag accepts a 32-character hexadecimal gist ID.

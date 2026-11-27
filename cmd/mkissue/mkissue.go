@@ -31,7 +31,7 @@ var frontmatterDelimiter = regexp.MustCompile(`(?m)^---[ \t]*\r?$`)
 
 func Run(args []string) {
 	if len(args) < 1 {
-		fmt.Fprintln(os.Stderr, "Usage: utils mkissue <file.issue.md>")
+		fmt.Fprintln(os.Stderr, "Usage: utils mkissue create --file <file.issue.md>")
 		os.Exit(1)
 	}
 
@@ -48,8 +48,28 @@ func Run(args []string) {
 // If gist is provided, the file will be read from that gist.
 // If repo is provided (owner/repo format), the file will be read from that GitHub repository.
 func RunWithFile(issueFile, branch, gist, repo string) error {
+	return Create(CreateOptions{File: issueFile, Branch: branch, Gist: gist, Repo: repo})
+}
+
+// CreateOptions selects the issue source and post-creation behavior.
+type CreateOptions struct {
+	File         string
+	Branch       string
+	Gist         string
+	Repo         string
+	Clean        bool
+	CreateLabels bool
+}
+
+// Create creates an issue from the selected source.
+func Create(options CreateOptions) error {
+	issueFile, branch, gist, repo := options.File, options.Branch, options.Gist, options.Repo
+	if options.Clean && (branch != "" || gist != "" || repo != "") {
+		return fmt.Errorf("--clean requires a local file source")
+	}
 	var content []byte
 	var err error
+	var snapshot sourceSnapshot
 
 	// Read the file from the specified source
 	if gist != "" {
@@ -67,6 +87,11 @@ func RunWithFile(issueFile, branch, gist, repo string) error {
 		if err != nil {
 			return fmt.Errorf("failed to read file from branch '%s': %w", branch, err)
 		}
+	} else if options.Clean {
+		content, snapshot, err = readLocalSource(issueFile)
+		if err != nil {
+			return fmt.Errorf("read local source %q: %w", issueFile, err)
+		}
 	} else {
 		content, err = os.ReadFile(issueFile)
 		if err != nil {
@@ -74,24 +99,17 @@ func RunWithFile(issueFile, branch, gist, repo string) error {
 		}
 	}
 
-	// Parse the file
-	metadata, body, err := parseIssueFile(string(content))
+	metadata, body, err := parseDraftFile(string(content))
 	if err != nil {
 		return err
 	}
 
-	// Validate required fields
-	if metadata.Title == "" {
-		return fmt.Errorf("'title' is required in frontmatter")
+	run := newGitHubRunner("")
+	if err := validateMilestone(metadata.Milestone, "", run); err != nil {
+		return err
 	}
-
-	// Create or verify labels
-	for _, label := range metadata.Labels {
-		if label.Color != "" || label.Desc != "" {
-			if err := ensureLabelExists(label); err != nil {
-				return fmt.Errorf("error creating label: %w", err)
-			}
-		}
+	if err := prepareIssueLabels(metadata.Labels, nil, options.CreateLabels, run); err != nil {
+		return err
 	}
 
 	// Create the issue
@@ -100,6 +118,11 @@ func RunWithFile(issueFile, branch, gist, repo string) error {
 	}
 
 	fmt.Println("Issue created successfully!")
+	if options.Clean {
+		if err := cleanSource(snapshot); err != nil {
+			return fmt.Errorf("issue created, but source cleanup failed: %w", err)
+		}
+	}
 	return nil
 }
 
@@ -402,41 +425,6 @@ func parseLabels(lines []string, startIdx int) ([]Label, int) {
 	return labels, i - 1
 }
 
-func ensureLabelExists(label Label) error {
-	// Check if label exists
-	cmd := exec.Command("gh", "label", "list", "--json", "name", "--jq", ".[].name")
-	output, err := cmd.Output()
-	if err != nil {
-		return fmt.Errorf("failed to list labels: %w", err)
-	}
-
-	existingLabels := strings.Split(strings.TrimSpace(string(output)), "\n")
-	for _, existing := range existingLabels {
-		if strings.TrimSpace(existing) == label.Name {
-			return nil // Label already exists
-		}
-	}
-
-	// Create label
-	fmt.Printf("Creating label: %s\n", label.Name)
-	args := []string{"label", "create", label.Name}
-
-	if label.Color != "" {
-		args = append(args, "--color", label.Color)
-	}
-
-	if label.Desc != "" {
-		args = append(args, "--description", label.Desc)
-	}
-
-	cmd = exec.Command("gh", args...)
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to create label: %w", err)
-	}
-
-	return nil
-}
-
 func createIssue(metadata *IssueMetadata, body string) error {
 	args := []string{"issue", "create", "--title", metadata.Title}
 
@@ -447,28 +435,40 @@ func createIssue(metadata *IssueMetadata, body string) error {
 		if err != nil {
 			return fmt.Errorf("failed to create temp file: %w", err)
 		}
-		defer os.Remove(tmpFile.Name())
+		defer func() { _ = os.Remove(tmpFile.Name()) }()
 
 		if _, err := tmpFile.WriteString(body); err != nil {
+			_ = tmpFile.Close()
 			return fmt.Errorf("failed to write body: %w", err)
 		}
-		tmpFile.Close()
+		if err := tmpFile.Close(); err != nil {
+			return fmt.Errorf("failed to close body file: %w", err)
+		}
 
 		args = append(args, "--body-file", tmpFile.Name())
+	} else {
+		args = append(args, "--body", "")
 	}
 
 	// Add assignees
 	for _, assignee := range metadata.Assignees {
 		if assignee == "me" {
-			args = append(args, "--assignee", "@me")
-		} else {
-			args = append(args, "--assignee", assignee)
+			assignee = "@me"
 		}
+		encoded, err := csvArgument(assignee)
+		if err != nil {
+			return err
+		}
+		args = append(args, "--assignee", encoded)
 	}
 
 	// Add labels
 	for _, label := range metadata.Labels {
-		args = append(args, "--label", label.Name)
+		encoded, err := csvArgument(label.Name)
+		if err != nil {
+			return err
+		}
+		args = append(args, "--label", encoded)
 	}
 
 	// Add milestone
@@ -478,7 +478,11 @@ func createIssue(metadata *IssueMetadata, body string) error {
 
 	// Add projects
 	for _, project := range metadata.Projects {
-		args = append(args, "--project", project)
+		encoded, err := csvArgument(project)
+		if err != nil {
+			return err
+		}
+		args = append(args, "--project", encoded)
 	}
 
 	fmt.Println("Creating issue...")

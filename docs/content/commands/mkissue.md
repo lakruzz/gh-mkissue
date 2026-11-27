@@ -3,7 +3,7 @@ title: Create issues with mkissue
 description: Generate an issue draft and create a GitHub issue from Markdown.
 ---
 
-`gh utils mkissue` creates a GitHub issue from a Markdown file containing YAML frontmatter and an optional Markdown body. It uses the authenticated GitHub CLI and creates the issue in the repository where the command is run.
+`gh utils mkissue create` creates a GitHub issue from a Markdown file containing YAML frontmatter and an optional Markdown body. It uses the authenticated GitHub CLI and creates the issue in the repository where the command is run.
 
 ## Generate a draft
 
@@ -43,15 +43,35 @@ Use `--dir` (`-d`) to choose another output directory; relative paths are resolv
 
 An existing draft for the same issue number is not overwritten unless `--force` (`-f`) is supplied. When the title has changed, `--force` updates the existing filename. If multiple drafts match the issue number, resolve them before using `--force`.
 
-Pulling only creates a local file; it does not change the GitHub issue. Updating an existing issue from an edited draft is not yet supported.
+Pulling only creates a local file; it does not change the GitHub issue.
+
+## Push an edited issue
+
+```bash
+gh utils mkissue push 7
+gh utils mkissue push 4,5,89 --dir path/to/drafts
+gh utils mkissue push 7 --force
+gh utils mkissue push 7 --clean --create-labels
+```
+
+Push accepts one issue number or a comma-separated list without spaces; `open` is not supported. It reads drafts from `issues/` at the repository root, or from `--dir` (`-d`), which resolves relative paths from the current directory. Each selected issue must have exactly one matching `<number>-*.md` file. The entire batch is checked for missing, ambiguous, or invalid drafts before any updates.
+
+The draft is the desired complete state: push synchronizes the title, body, assignees, labels, milestone, and projects. Omitted optional fields remove the corresponding remote metadata. Issue state, comments, and project status are not changed. Missing labels fail unless `--create-labels` is supplied. Project access requires the appropriate GitHub CLI authorization.
+
+If the body has changed and the issue has comments, the update is rejected unless `--force` (`-f`) is supplied. Metadata-only updates are allowed when the body is unchanged. Force does not bypass draft validation or ambiguity checks. A comment can still be added between the check and the update.
+
+After local preflight, batch pushes continue after individual errors and return a nonzero exit code if any issue fails. Successful updates remain in place. GitHub operations are not transactional: labels created before a later failure may remain, and an issue update may be partially applied if GitHub reports an error.
+
+Use `--clean` (`-c`) to delete each unchanged local draft after its issue is successfully updated. Failed updates keep their drafts. If a draft was edited or replaced during the update, it is retained and cleanup reports an error; the issue may already have been updated.
 
 ## Create an issue
 
 ```bash
-gh utils mkissue --file template.issue.md
+gh utils mkissue create --file template.issue.md
+gh utils mkissue create --file template.issue.md --clean
 ```
 
-The `--file` flag is required and also has the short form `-f`. The file needs a nonempty `title` in its frontmatter. For example:
+The `--file` flag is required and also has the short form `-f`. Use `--clean` (`-c`) to delete an unchanged local source after successful creation; it cannot be used with a branch, repository, or gist source. If the file was changed during creation, it is retained and cleanup reports an error even though the issue was created. The file needs a nonempty `title` in its frontmatter. For example:
 
 ```markdown
 ---
@@ -66,27 +86,27 @@ projects: ["Roadmap"]
 Describe the issue here.
 ```
 
-All fields except `title` are optional. Assignees use GitHub login names or `@me`. Labels with only a `name` must already exist; adding `color` or `desc` allows a missing label to be created. Named milestones and projects must already exist. See the [full template reference](../../../templates/template.issue.md) for the supported fields.
+All fields except `title` are optional. Assignees use GitHub login names or `@me`. Labels must already exist unless `--create-labels` is supplied; optional `color` and `desc` apply when creating a missing label. Named milestones and projects must already exist. Labels created before a later failure are not rolled back. See the [full template reference](../../../templates/template.issue.md) for the supported fields.
 
 ## Read from another source
 
 Read a file from a branch of the current repository:
 
 ```bash
-gh utils mkissue --file path/to/issue.md --branch feature
+gh utils mkissue create --file path/to/issue.md --branch feature
 ```
 
 Read from another repository, optionally selecting a branch. Without `--branch`, its default branch is used:
 
 ```bash
-gh utils mkissue --file path/to/issue.md --repo owner/repo
-gh utils mkissue --file path/to/issue.md --repo owner/repo --branch feature
+gh utils mkissue create --file path/to/issue.md --repo owner/repo
+gh utils mkissue create --file path/to/issue.md --repo owner/repo --branch feature
 ```
 
 Read a file from a gist using its 32-character hexadecimal ID:
 
 ```bash
-gh utils mkissue --file issue.md --gist GIST_ID
+gh utils mkissue create --file issue.md --gist GIST_ID
 ```
 
 The source flags also have short forms: `-b` for `--branch`, `-r` for `--repo`, and `-g` for `--gist`. `--gist` cannot be combined with `--repo` or `--branch`. These flags select where to read the file; they do not change the repository where the issue is created.

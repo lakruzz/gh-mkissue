@@ -111,7 +111,8 @@ func TestTemplateCommandRouting(t *testing.T) {
 		wantErr string
 	}{
 		{name: "template without file", args: []string{issueCommand, templateCommand, outputFlag, "-"}, want: templates.MinimalTemplate},
-		{name: "issue requires file", args: []string{issueCommand}, wantErr: `required flag(s) "file" not set`},
+		{name: "create requires file", args: []string{issueCommand, "create"}, wantErr: `required flag(s) "file" not set`},
+		{name: "old form rejected", args: []string{issueCommand, "--file", "legacy.md"}, wantErr: "unknown flag: --file"},
 		{name: "template rejects file flag", args: []string{issueCommand, templateCommand, "--file", "issue.md"}, wantErr: "unknown flag: --file"},
 		{name: "template rejects arguments", args: []string{issueCommand, templateCommand, "issue.md"}, wantErr: "unknown command"},
 	}

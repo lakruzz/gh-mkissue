@@ -27,4 +27,4 @@ description: Draft and review a GitHub issue specification with gh utils mkissue
 
 ## Create the issue
 
-Only create a GitHub issue after the user explicitly approves publication. Confirm the intended destination repository with the user, check GitHub CLI authentication, and run `gh utils mkissue --file <draft-path>` from that repository. Source flags select where to read the draft, not where the issue is created. Report the resulting issue URL or any error.
+Only create a GitHub issue after the user explicitly approves publication. Confirm the intended destination repository with the user, check GitHub CLI authentication, and run `gh utils mkissue create --file <draft-path>` from that repository. Source flags select where to read the draft, not where the issue is created. Report the resulting issue URL or any error.

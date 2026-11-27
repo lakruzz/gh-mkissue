@@ -12,7 +12,6 @@ import (
 // Mock functions for testing
 var (
 	mockGitShowFunc      func(filePath, branch string) ([]byte, error)
-	mockEnsureLabelFunc  func(label Label) error
 	mockCreateIssueFunc  func(metadata *IssueMetadata, body string) error
 	mockRunGhCommandFunc func(args []string) error
 )
@@ -23,13 +22,6 @@ func mockReadFileFromBranch(filePath, branch string) ([]byte, error) {
 		return mockGitShowFunc(filePath, branch)
 	}
 	return readFileFromBranch(filePath, branch)
-}
-
-func mockEnsureLabelExists(label Label) error {
-	if mockEnsureLabelFunc != nil {
-		return mockEnsureLabelFunc(label)
-	}
-	return ensureLabelExists(label)
 }
 
 func mockCreateIssueInternal(metadata *IssueMetadata, body string) error {
@@ -388,9 +380,6 @@ This is a test issue.`
 	tmpFile.Close()
 
 	// Setup mocks
-	mockEnsureLabelFunc = func(label Label) error {
-		return nil
-	}
 	mockCreateIssueFunc = func(metadata *IssueMetadata, body string) error {
 		if metadata.Title != "Test Issue from File" {
 			return fmt.Errorf("unexpected title")
@@ -398,7 +387,6 @@ This is a test issue.`
 		return nil
 	}
 	defer func() {
-		mockEnsureLabelFunc = nil
 		mockCreateIssueFunc = nil
 	}()
 
@@ -656,7 +644,7 @@ Body`,
 		},
 		{
 			name:    "body with code blocks",
-			content: "---\ntitle: Code Issue\n---\nUsage:\n```bash\ngh utils mkissue --file issue.md\n```",
+			content: "---\ntitle: Code Issue\n---\nUsage:\n```bash\ngh utils mkissue create --file issue.md\n```",
 			wantErr: false,
 		},
 		{
@@ -715,57 +703,6 @@ Used to measure parsing performance.`
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, _, _ = parseIssueFile(content)
-	}
-}
-
-func TestEnsureLabelExists(t *testing.T) {
-	t.Setenv("PATH", t.TempDir())
-	tests := []struct {
-		name    string
-		label   Label
-		wantErr bool
-	}{
-		{
-			name: "label with all fields",
-			label: Label{
-				Name:  "test-label",
-				Color: "ff0000",
-				Desc:  "Test description",
-			},
-			wantErr: false,
-		},
-		{
-			name: "label with minimal fields",
-			label: Label{
-				Name: "minimal",
-			},
-			wantErr: false,
-		},
-		{
-			name: "label with color only",
-			label: Label{
-				Name:  "colored",
-				Color: "00ff00",
-			},
-			wantErr: false,
-		},
-		{
-			name: "label with description only",
-			label: Label{
-				Name: "descriptive",
-				Desc: "Has a description",
-			},
-			wantErr: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := ensureLabelExists(tt.label)
-			if err == nil {
-				t.Error("expected an error from the unavailable gh command")
-			}
-		})
 	}
 }
 

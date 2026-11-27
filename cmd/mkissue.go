@@ -1,19 +1,7 @@
 // Package cmd provides command-line interface commands for the gh-utils extension.
 package cmd
 
-import (
-	"fmt"
-
-	"github.com/lakruzz/gh-utils/cmd/mkissue"
-	"github.com/spf13/cobra"
-)
-
-var (
-	issueFile  string
-	branchName string
-	gistID     string
-	repoName   string
-)
+import "github.com/spf13/cobra"
 
 var mkissueCmd = &cobra.Command{
 	Use:   "mkissue",
@@ -22,28 +10,17 @@ var mkissueCmd = &cobra.Command{
 The markdown file should contain YAML frontmatter with metadata and a markdown body.
 
 Usage variants:
-  utils mkissue --file <file> [--branch <branch>] [--repo <owner/repo>]
-  utils mkissue --file <file> [--gist <gist-id>]
+	utils mkissue create --file <file> [--branch <branch>] [--repo <owner/repo>]
+	utils mkissue create --file <file> [--gist <gist-id>]
   utils mkissue template [--elaborate] [--out <file>]
   utils mkissue pull <issue-numbers|open>
+	utils mkissue push <issue-numbers>
 
 Rules:
   --file is required when creating an issue
   --branch is optional (defaults to the repo's default branch when used with --repo)
   --gist and --repo are mutually exclusive
   --branch is not valid with --gist`,
-	RunE: func(_ *cobra.Command, _ []string) error {
-		// Validate that branch and gist are not both specified
-		if branchName != "" && gistID != "" {
-			return fmt.Errorf("cannot use both --branch and --gist flags together")
-		}
-		// Validate that repo and gist are not both specified
-		if repoName != "" && gistID != "" {
-			return fmt.Errorf("cannot use both --repo and --gist flags together")
-		}
-		// Call the original mkissue logic with the file path, branch, gist, and repo
-		return mkissue.RunWithFile(issueFile, branchName, gistID, repoName)
-	},
 }
 
 func init() {
@@ -51,11 +28,6 @@ func init() {
 	rootCmd.AddCommand(mkissueCmd)
 	mkissueCmd.AddCommand(newTemplateCmd())
 	mkissueCmd.AddCommand(newPullCmd())
-
-	// Define flags for mkissue command
-	mkissueCmd.Flags().StringVarP(&issueFile, "file", "f", "", "Path to the markdown file containing issue content (required)")
-	mkissueCmd.Flags().StringVarP(&branchName, "branch", "b", "", "Branch name to get the file from (optional)")
-	mkissueCmd.Flags().StringVarP(&gistID, "gist", "g", "", "Gist ID to get the file from (optional)")
-	mkissueCmd.Flags().StringVarP(&repoName, "repo", "r", "", "Repository to get the file from, in owner/repo format (optional)")
-	_ = mkissueCmd.MarkFlagRequired("file")
+	mkissueCmd.AddCommand(newPushCmd())
+	mkissueCmd.AddCommand(newCreateCmd())
 }
